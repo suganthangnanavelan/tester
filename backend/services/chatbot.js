@@ -71,23 +71,44 @@ const handleUserInput = async (input) => {
     }
 
     const response = await nlp.process('en', input);
-    const intent = response.intent;
-
-    // Create a unique responseId for each response
-    const responseId = new mongoose.Types.ObjectId(); // Generate a new unique ObjectId for response
-
-    // Fetch the intent from the database to access the responses and their Q-values
-    const intentFromDB = await Intent.findOne({ intent });
-
-    if (intentFromDB) {
-      // Pick the response with the highest Q-value (if available)
-      const bestResponseIndex = intentFromDB.qValues.indexOf(Math.max(...intentFromDB.qValues));
-      const bestResponse = intentFromDB.responses[bestResponseIndex];
-
-      return { reply: bestResponse, responseId, intentName: intent };
-    } else {
-      return { reply: response.answer || "Sorry, I didn't understand that. Could you please clarify?", responseId, intentName: intent };
+    const intentName = response.intent;
+    
+    // Fetch the intent document from the database
+    const intentDoc = await Intent.findOne({ intent: intentName });
+    
+    if (!intentDoc) {
+      return { 
+        reply: response.answer || "Sorry, I didn't understand that. Could you please clarify?", 
+        responseId: null,
+        intentName 
+      };
     }
+    
+    // Select response based on Q-values
+    let responseIndex = 0;
+    
+    // If we have Q-values, use them to select the best response
+    if (intentDoc.qValues && intentDoc.qValues.length > 0) {
+      // Find the index of the maximum Q-value
+      responseIndex = intentDoc.qValues.indexOf(Math.max(...intentDoc.qValues));
+      
+      // Fallback if the index is invalid
+      if (responseIndex < 0 || responseIndex >= intentDoc.responses.length) {
+        responseIndex = 0;
+      }
+    }
+    
+    // Get the selected response
+    const selectedResponse = intentDoc.responses[responseIndex];
+    
+    // Return the response along with the intent ID and the response index
+    // This will be used for feedback
+    return { 
+      reply: selectedResponse || response.answer || "I'm not sure how to respond to that.",
+      responseId: `${intentDoc._id}:${responseIndex}`, // Format: intentId:responseIndex
+      intentName
+    };
+    
   } catch (error) {
     console.error('Error handling user input:', error.message);
     return { reply: 'An error occurred while processing your input. Please try again.' };
@@ -101,35 +122,47 @@ const updateFeedback = async (responseId, feedback) => {
   }
 
   try {
-    const intent = await Intent.findOne({ 'responses._id': responseId });
+    // Parse the responseId to extract intentId and responseIndex
+    const [intentId, responseIndex] = responseId.split(':');
+    
+    if (!intentId || responseIndex === undefined) {
+      console.error('Invalid responseId format:', responseId);
+      return;
+    }
+    
+    // Find the intent by ID
+    const intent = await Intent.findById(intentId);
+    
     if (!intent) {
-      console.error('Intent not found for responseId:', responseId);
+      console.error('Intent not found for intentId:', intentId);
       return;
     }
-
-    const responseIndex = intent.responses.findIndex(response => response._id.toString() === responseId);
-    if (responseIndex === -1) {
-      console.error('Response not found in intent:', responseId);
-      return;
+    
+    // Initialize qValues if it doesn't exist or has wrong length
+    if (!intent.qValues || intent.qValues.length !== intent.responses.length) {
+      intent.qValues = new Array(intent.responses.length).fill(0);
     }
-
-    // Initialize qValues if empty
-    if (!intent.qValues || intent.qValues.length === 0) {
-      intent.qValues = new Array(intent.responses.length).fill(0); // Fill qValues with zeros if empty
-    }
-
+    
     // Update the Q-value based on feedback
     let reward = 0;
-    if (feedback === 'thumbs_up') reward = 1;  // Positive feedback
+    if (feedback === 'thumbs_up') reward = 1;      // Positive feedback
     else if (feedback === 'thumbs_down') reward = -1; // Negative feedback
-    else reward = 0; // Neutral feedback
-
-    // Reinforcement learning step: Update the Q-value for the response
-    intent.qValues[responseIndex] += reward;  // Modify the Q-value based on the feedback
-
-    // Save updated intent with new qValues
-    await intent.save();
-    console.log('Q-values updated for responseId:', responseId, 'New Q-values:', intent.qValues);
+    else reward = 0;                              // Neutral feedback
+    
+    // Convert responseIndex to a number to ensure proper indexing
+    const indexNum = parseInt(responseIndex, 10);
+    
+    // Ensure valid index
+    if (indexNum >= 0 && indexNum < intent.qValues.length) {
+      // Apply reward to the Q-value
+      intent.qValues[indexNum] += reward;
+      
+      // Save updated intent with new qValues
+      await intent.save();
+      console.log('Q-values updated for intent:', intentId, 'response index:', indexNum, 'New Q-values:', intent.qValues);
+    } else {
+      console.error('Response index out of bounds:', indexNum, 'Max:', intent.qValues.length - 1);
+    }
   } catch (error) {
     console.error('Error updating feedback:', error);
   }

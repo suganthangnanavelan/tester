@@ -27,17 +27,24 @@ const ChatbotPage = () => {
       const response = await axios.post('http://localhost:5000/api/chat', { message: userMessage });
       const botReply = response.data.reply;
       const responseId = response.data.responseId;  // Capture responseId from the response data
-      //const intentName = response.data.intentName; // Assuming intent is returned by the API
+      const intentName = response.data.intentName; // Capture the intent name
 
       // Add the bot's response to the chat history
       addToChatHistory({
         sender: 'bot',
         text: botReply,
-        responseId,
+        responseId: responseId, // Store the responseId with the message
+        intentName: intentName  // Store the intent name if needed
       });
+      
       setLastResponseId(responseId);  // Store the responseId for future use
     } catch (error) {
       console.error('Error sending message:', error);
+      // Add an error message to the chat
+      addToChatHistory({
+        sender: 'bot',
+        text: 'Sorry, there was an error processing your request. Please try again.'
+      });
     }
   };
 
@@ -48,8 +55,11 @@ const ChatbotPage = () => {
         return;
       }
 
+      // Send the feedback to the server
       await axios.post('http://localhost:5000/api/chat/feedback', { responseId, feedback });
-      console.log('Feedback submitted:', feedback);
+      console.log('Feedback submitted:', feedback, 'for responseId:', responseId);
+      
+      // Optionally, you could provide visual feedback that the rating was recorded
     } catch (error) {
       console.error('Error submitting feedback:', error);
     }
@@ -68,12 +78,12 @@ const ChatbotPage = () => {
           <li key={index} className={message.sender === 'user' ? 'user-message' : 'bot-message'}>
             <div>{message.text}</div>
 
-            {message.sender === 'bot' && (
+            {message.sender === 'bot' && message.responseId && (
               <div className="feedback-buttons">
                 <label className="thumbs-up-label">
                   <input
                     type="radio"
-                    name={`feedback-${message.responseId}`}
+                    name={`feedback-${index}`}
                     onClick={() => handleFeedback(message.responseId, 'thumbs_up')}
                   />
                   <FaThumbsUp />
@@ -82,7 +92,7 @@ const ChatbotPage = () => {
                 <label className="thumbs-down-label">
                   <input
                     type="radio"
-                    name={`feedback-${message.responseId}`}
+                    name={`feedback-${index}`}
                     onClick={() => handleFeedback(message.responseId, 'thumbs_down')}
                   />
                   <FaThumbsDown />
@@ -91,7 +101,7 @@ const ChatbotPage = () => {
                 <label className="neutral-label">
                   <input
                     type="radio"
-                    name={`feedback-${message.responseId}`}
+                    name={`feedback-${index}`}
                     onClick={() => handleFeedback(message.responseId, 'neutral')}
                   />
                   <FaRegMeh />
