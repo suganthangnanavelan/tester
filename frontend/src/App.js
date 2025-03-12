@@ -4,7 +4,7 @@ import CorpusManager from './components/CorpusManager';
 import ProductManager from './components/ProductManager';
 import ChatbotPage from './components/Chatbot';
 import axios from 'axios';
-import { ChatHistoryProvider } from './components/chatHistoryContext'; // Import the context provider
+import { ChatHistoryProvider } from './components/chatHistoryContext';
 
 const App = () => {
   const handleTrainModel = async () => {
@@ -19,7 +19,7 @@ const App = () => {
   };
 
   return (
-    <ChatHistoryProvider> {/* Wrap the app with the provider */}
+    <ChatHistoryProvider> {}
       <Router>
         <div>
           <nav>

@@ -366,27 +366,23 @@ li {
   background-color: #45a049;
 }
 
-/* Add this to your existing App.css */
-
-/* Clear History Button: Small and aligned to left */
 .clear-button {
   background-color: #FF6347;
   color: white;
-  padding: 5px 10px;  /* Smaller size */
+  padding: 10px 10px;
   border-radius: 6px;
-  font-size: 14px;
+  font-size: 16px;
   cursor: pointer;
   border: none;
   transition: background-color 0.3s ease;
   margin-top: 10px;
-  align-self: flex-start;  /* Align to left */
+  align-self: flex-start;
 }
 
 .clear-button:hover {
   background-color: #e55347;
 }
 
-/* Styling for thumbs-up/thumbs-down buttons */
 .feedback-buttons {
   display: flex;
   gap: 15px;
@@ -395,7 +391,7 @@ li {
 }
 
 .feedback-buttons input[type="radio"] {
-  display: none; /* Hide the default radio button */
+  display: none;
 }
 
 .feedback-buttons label {
@@ -404,7 +400,7 @@ li {
   align-items: center;
   position: relative;
   cursor: pointer;
-  transition: transform 0.2s ease; /* Smooth transition */
+  transition: transform 0.2s ease;
 }
 
 .feedback-buttons label:before {
@@ -413,42 +409,35 @@ li {
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background-color: #f0f0f0; /* Light gray background */
+  background-color: #f0f0f0;
   border: none;
-  transition: background-color 0.2s ease; /* Faster transition */
+  transition: background-color 0.2s ease;
 }
 
-/* Thumbs-up radio button default state */
 .feedback-buttons .thumbs-up-label:before {
   background-color: #f0f0f0;
 }
 
-/* Thumbs-down radio button default state */
 .feedback-buttons .thumbs-down-label:before {
   background-color: #f0f0f0;
 }
 
-/* Neutral button default state */
 .feedback-buttons .neutral-label:before {
   background-color: #f0f0f0;
 }
 
-/* Thumbs-up selected state */
 .feedback-buttons .thumbs-up-label input[type="radio"]:checked + svg:before {
-  background-color: #2f8c27; /* Green color */
+  background-color: #2f8c27;
 }
 
-/* Thumbs-down selected state */
 .feedback-buttons .thumbs-down-label input[type="radio"]:checked + svg:before {
-  background-color: #e74c3c; /* Red color */
+  background-color: #e74c3c;
 }
 
-/* Neutral selected state */
 .feedback-buttons .neutral-label input[type="radio"]:checked + svg:before {
-  background-color: #bdc3c7; /* Neutral gray */
+  background-color: #bdc3c7;
 }
 
-/* Icon color when selected */
 .feedback-buttons svg {
   font-size: 16px;
   position: absolute;
@@ -456,22 +445,81 @@ li {
   transition: color 0.1s ease;
 }
 
-/* Thumbs-up icon color */
 .feedback-buttons .thumbs-up-label input[type="radio"]:checked + svg {
   color: #2f8c27;
 }
 
-/* Thumbs-down icon color */
 .feedback-buttons .thumbs-down-label input[type="radio"]:checked + svg {
   color: #e74c3c;
 }
 
-/* Neutral icon color */
 .feedback-buttons .neutral-label input[type="radio"]:checked + svg {
   color: #2f8c27;
 }
 
-/* Hover effect */
 .feedback-buttons label:hover {
-  transform: scale(1.1); /* Slight zoom effect when hovering */
+  transform: scale(1.1);
+}
+
+
+.chatbot-controls {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.rlhf-toggle {
+  background-color: #4CAF50;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.3s ease;
+}
+
+.rlhf-toggle.rlhf-active {
+  background-color: #2196F3;
+}
+
+.rlhf-toggle:hover {
+  background-color: #45a049;
+}
+
+.rlhf-toggle.rlhf-active:hover {
+  background-color: #0b7dda;
+}
+
+.response-with-q {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.q-value {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  border-radius: 50%;
+  background-color: #f1f1f1;
+  margin-right: 10px;
+  font-weight: bold;
+}
+
+.q-value.positive {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.q-value.negative {
+  background-color: #f44336;
+  color: white;
+}
+
+.q-value.neutral {
+  background-color: #9e9e9e;
+  color: white;
 }

@@ -7,6 +7,7 @@ const CorpusManager = () => {
   const [intent, setIntent] = useState('');
   const [utterances, setUtterances] = useState('');
   const [responses, setResponses] = useState('');
+  const [qValues, setQValues] = useState('');
   const [editingId, setEditingId] = useState(null);
 
   useEffect(() => {
@@ -23,11 +24,22 @@ const CorpusManager = () => {
   };
 
   const addOrUpdateIntent = async () => {
+    const responseArray = responses.split(';').map(item => item.trim());
+    
+    let qValuesArray = [];
+    if (qValues) {
+      qValuesArray = qValues.split(';').map(val => parseFloat(val.trim()) || 0);
+    }
+    
+    while (qValuesArray.length < responseArray.length) {
+      qValuesArray.push(0);
+    }
+    
     const newIntent = {
       intent,
-      utterances: utterances.split(';').map((item) => item.trim()),
-      responses: responses.split(';').map((item) => item.trim()),
-      qValues: new Array(responses.split(';').length).fill(0) // Initialize qValues with zeros
+      utterances: utterances.split(';').map(item => item.trim()),
+      responses: responseArray,
+      qValues: qValuesArray
     };
   
     try {
@@ -56,6 +68,7 @@ const CorpusManager = () => {
     setIntent('');
     setUtterances('');
     setResponses('');
+    setQValues('');
     setEditingId(null);
   };
 
@@ -63,6 +76,7 @@ const CorpusManager = () => {
     setIntent(intent.intent);
     setUtterances(intent.utterances.join('; '));
     setResponses(intent.responses.join('; '));
+    setQValues(intent.qValues.join('; '));
     setEditingId(intent._id);
   };
 
@@ -85,6 +99,11 @@ const CorpusManager = () => {
         value={responses}
         onChange={(e) => setResponses(e.target.value)}
       />
+      <textarea
+        placeholder="Q-Values (semicolon separated, e.g., 0; 1; -1)"
+        value={qValues}
+        onChange={(e) => setQValues(e.target.value)}
+      />
       <button className="intent-add-btn" onClick={addOrUpdateIntent}>
         {editingId ? 'Update Intent' : 'Add Intent'}
       </button>
@@ -102,7 +121,9 @@ const CorpusManager = () => {
             </div>
             <div>
               <strong>Responses:</strong>
-              <pre>{intent.responses.join('\n')}</pre>
+              <pre>{intent.responses.map((response, index) => 
+                `[${intent.qValues[index] || 0}] ${response}`
+              ).join('\n')}</pre>
             </div>
             <div className="action-buttons">
               <button className="intent-edit-btn" onClick={() => startEditing(intent)}>

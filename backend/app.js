@@ -28,7 +28,6 @@ app.post('/api/train', async (req, res) => {
   }
 });
 
-// API for handling feedback
 app.post('/api/chat/feedback', async (req, res) => {
   const { responseId, feedback } = req.body;
   try {

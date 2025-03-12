@@ -73,7 +73,88 @@ const handleUserInput = async (input) => {
     const response = await nlp.process('en', input);
     const intentName = response.intent;
     
-    // Fetch the intent document from the database
+    switch (intentName) {
+      case 'menu.showAllItems': {
+        const products = await Product.find({});
+        if (products.length > 0) {
+          const productDetails = products.map(product => 
+            `${product.name} (${product.category}) - $${product.price}: ${product.description}`
+          ).join('\n');
+          return { 
+            reply: `Here is our menu:\n${productDetails}`, 
+            responseId: null,
+            intentName 
+          };
+        } else {
+          return { 
+            reply: "Sorry, we currently do not have any items on our menu.", 
+            responseId: null,
+            intentName 
+          };
+        }
+      }
+      case 'order.selectProduct': {
+        const products = await getProducts();
+        selectedProduct = products.find((product) => input.toLowerCase().includes(product.toLowerCase()));
+        if (selectedProduct) {
+          return { 
+            reply: `You selected ${selectedProduct}. How many would you like to order?`, 
+            responseId: null,
+            intentName 
+          };
+        } else {
+          return { 
+            reply: `Sorry, we do not have that product. Here is our menu: ${products.join(', ')}`, 
+            responseId: null,
+            intentName 
+          };
+        }
+      }
+      case 'order.specifyQuantity': {
+        if (!selectedProduct) {
+          return { 
+            reply: "Please specify the product you'd like to order first.", 
+            responseId: null,
+            intentName 
+          };
+        }
+        selectedQuantity = input.match(/\d+/)?.[0];
+        if (selectedQuantity) {
+          return { 
+            reply: `You want ${selectedQuantity} ${selectedProduct}. Shall I place the order?`, 
+            responseId: null,
+            intentName 
+          };
+        } else {
+          return { 
+            reply: "I didn't catch the quantity. Could you please specify how many you'd like to order?", 
+            responseId: null,
+            intentName 
+          };
+        }
+      }
+      case 'order.placeOrder': {
+        if (selectedProduct && selectedQuantity) {
+          const apiResponse = await placeOrder(selectedProduct, selectedQuantity);
+          const reply = `Great! I am placing your order for ${selectedQuantity} ${selectedProduct}. ${apiResponse}`;
+
+          selectedProduct = null;
+          selectedQuantity = null;
+          return { 
+            reply, 
+            responseId: null,
+            intentName 
+          };
+        } else {
+          return { 
+            reply: "Sorry, I need to know what product and quantity you want before placing the order.", 
+            responseId: null,
+            intentName 
+          };
+        }
+      }
+    }
+    
     const intentDoc = await Intent.findOne({ intent: intentName });
     
     if (!intentDoc) {
@@ -83,29 +164,32 @@ const handleUserInput = async (input) => {
         intentName 
       };
     }
+  
+    if (!intentDoc.qValues || intentDoc.qValues.length !== intentDoc.responses.length) {
+      intentDoc.qValues = new Array(intentDoc.responses.length).fill(0);
+      await intentDoc.save();
+    }
     
-    // Select response based on Q-values
-    let responseIndex = 0;
+    const epsilon = 0.2;
+    let responseIndex;
     
-    // If we have Q-values, use them to select the best response
-    if (intentDoc.qValues && intentDoc.qValues.length > 0) {
-      // Find the index of the maximum Q-value
+    if (Math.random() < epsilon) {
+      responseIndex = Math.floor(Math.random() * intentDoc.responses.length);
+      console.log(`Exploring: Chose random response ${responseIndex} for intent ${intentName}`);
+    } 
+    else {
       responseIndex = intentDoc.qValues.indexOf(Math.max(...intentDoc.qValues));
-      
-      // Fallback if the index is invalid
       if (responseIndex < 0 || responseIndex >= intentDoc.responses.length) {
         responseIndex = 0;
       }
+      console.log(`Exploiting: Chose best response ${responseIndex} for intent ${intentName} with Q-value ${intentDoc.qValues[responseIndex]}`);
     }
-    
-    // Get the selected response
+
     const selectedResponse = intentDoc.responses[responseIndex];
     
-    // Return the response along with the intent ID and the response index
-    // This will be used for feedback
     return { 
       reply: selectedResponse || response.answer || "I'm not sure how to respond to that.",
-      responseId: `${intentDoc._id}:${responseIndex}`, // Format: intentId:responseIndex
+      responseId: `${intentDoc._id}:${responseIndex}`,
       intentName
     };
     
@@ -122,42 +206,33 @@ const updateFeedback = async (responseId, feedback) => {
   }
 
   try {
-    // Parse the responseId to extract intentId and responseIndex
     const [intentId, responseIndex] = responseId.split(':');
     
     if (!intentId || responseIndex === undefined) {
       console.error('Invalid responseId format:', responseId);
       return;
     }
-    
-    // Find the intent by ID
+
     const intent = await Intent.findById(intentId);
     
     if (!intent) {
       console.error('Intent not found for intentId:', intentId);
       return;
     }
-    
-    // Initialize qValues if it doesn't exist or has wrong length
+
     if (!intent.qValues || intent.qValues.length !== intent.responses.length) {
       intent.qValues = new Array(intent.responses.length).fill(0);
     }
     
-    // Update the Q-value based on feedback
     let reward = 0;
-    if (feedback === 'thumbs_up') reward = 1;      // Positive feedback
-    else if (feedback === 'thumbs_down') reward = -1; // Negative feedback
-    else reward = 0;                              // Neutral feedback
+    if (feedback === 'thumbs_up') reward = 1;
+    else if (feedback === 'thumbs_down') reward = -1;
+    else reward = 0;
     
-    // Convert responseIndex to a number to ensure proper indexing
     const indexNum = parseInt(responseIndex, 10);
     
-    // Ensure valid index
     if (indexNum >= 0 && indexNum < intent.qValues.length) {
-      // Apply reward to the Q-value
       intent.qValues[indexNum] += reward;
-      
-      // Save updated intent with new qValues
       await intent.save();
       console.log('Q-values updated for intent:', intentId, 'response index:', indexNum, 'New Q-values:', intent.qValues);
     } else {
