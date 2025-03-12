@@ -1,68 +1,114 @@
-/* General body styling */
-body {
-  font-family: 'Arial', sans-serif;
+* {
   margin: 0;
   padding: 0;
-  background-color: #f4f4f9;
-  color: #000000;
-  line-height: 1.6;
+  box-sizing: border-box;
 }
 
-/* Main container styling */
-div {
-  max-width: 800px;
-  margin: 20px auto;
-  padding: 20px;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-/* Header styling */
-h1.heading {
-  text-align: center;
-  color: #4CAF50;
-  margin-bottom: 20px;
-}
-
-h2 {
-  color: #4CAF50;
-  margin-top: 20px;
-}
-
-/* Input field styling */
-input[type="text"],
-textarea {
+html, body {
+  padding: 80px;
   width: 100%;
-  padding: 8px;
-  margin: 8px 0;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f4f4f9;
+  color: #333;
+  line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+#root {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+nav {
+  background-color: #4CAF50;
+  padding: 5px 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  flex-shrink: 0;
+}
+
+nav ul {
+  display: flex;
+  justify-content: space-around;
+  list-style: none;
+}
+
+nav li {
+  flex: 1;
+}
+
+nav li button {
+  width: 100%;
+  padding: 2.5px;
+  background-color: #ffffff;
+  border-radius: 6px;
+  color: #4CAF50;
+  font-size: 12px;
+  text-transform: uppercase;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+nav li button:hover {
+  background-color: #f4f4f9;
+  transform: scale(1.05);
+}
+
+nav li button:focus {
   outline: none;
+}
+
+button {
+  padding: 8px 12px;
   font-size: 14px;
-  transition: border-color 0.3s ease-in-out;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  border: none;
 }
 
-textarea {
-  height: 60px;
+button:focus {
+  outline: none;
 }
 
-input[type="text"]:focus,
-textarea:focus {
+.intent-add-btn, .product-add-btn {
+  width: 200px;
+}
+
+.edit-btn, .delete-btn, .intent-edit-btn, .intent-delete-btn {
+  width: 120px;
+}
+
+input, textarea {
+  width: 100%;
+  padding: 12px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  transition: border-color 0.3s ease;
+  margin-bottom: 10px;
+}
+
+input:focus, textarea:focus {
   border-color: #4CAF50;
 }
 
-/* Button styling */
-button {
-  padding: 8px 12px;
-  border: none;
-  border-radius: 4px;
-  font-size: 12px;
-  cursor: pointer;
-  transition: background-color 0.3s ease-in-out, transform 0.2s;
+textarea {
+  height: 100px;
 }
 
-/* Add button styles */
 .add-btn {
   background-color: #4CAF50;
   color: white;
@@ -72,11 +118,6 @@ button {
   background-color: #45a049;
 }
 
-.add-btn:active {
-  transform: scale(0.98);
-}
-
-/* Edit button styles */
 .edit-btn {
   background-color: #FFD700;
   color: black;
@@ -86,7 +127,6 @@ button {
   background-color: #e6c200;
 }
 
-/* Delete button styles */
 .delete-btn {
   background-color: #FF6347;
   color: white;
@@ -96,31 +136,342 @@ button {
   background-color: #e55347;
 }
 
-/* Action buttons */
-.action-buttons {
+.intent-add-btn {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.intent-add-btn:hover {
+  background-color: #45a049;
+}
+
+.intent-edit-btn {
+  background-color: #FFD700;
+  color: black;
+}
+
+.intent-edit-btn:hover {
+  background-color: #e6c200;
+}
+
+.intent-delete-btn {
+  background-color: #FF6347;
+  color: white;
+}
+
+.intent-delete-btn:hover {
+  background-color: #e55347;
+}
+
+h1, h2 {
+  font-weight: 600;
+  color: #333;
+}
+
+h1.heading, h2 {
+  color: #4CAF50;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.manager-container,
+.chat-container,
+.go-to-chatbot-container {
   display: flex;
-  gap: 5px;
+  flex-direction: column;
+  flex-grow: 1;
+  width: 100%;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  padding: 20px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.intent-item p,
+.product-item p {
+  margin: 10px 0;
+  font-size: 16px;
+}
+.intent-item {
+  background: #f9f9f9;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+
+textarea {
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-size: 14px;
   margin-top: 5px;
-  padding-left: 10px;
+  padding-left: 20px;
+  background-color: #f9f9f9;
+  border-radius: 6px;
 }
 
-.small-buttons button {
-  padding: 5px 10px;
-  font-size: 12px;
-  width: fit-content;
+.intent-item {
+  padding: 8px;
+  margin: 5px 0;
 }
 
-/* List styling */
+.intent-item .intent-name {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.intent-item .intent-utterances,
+.intent-item .intent-responses {
+  margin-bottom: 5px;
+}
+
+.intent-item ul {
+  padding-left: 20px;
+}
+
+.intent-item ul li {
+  margin: 5px 0;
+  font-size: 16px;
+}
+
+.intent-item .action-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.intent-item strong,
+.product-item strong {
+  font-weight: bold;
+}
+
+.intent-item .action-buttons,
+.product-item .action-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
 ul {
   list-style-type: none;
   padding: 0;
+  margin: 0;
 }
 
 li {
-  margin: 10px 0;
+  margin: 12px 0;
   padding: 10px;
   background: #f9f9f9;
   border: 1px solid #ddd;
-  border-radius: 4px;
+  border-radius: 6px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.chatbot-heading {
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+  width: 100%;
+}
+
+.message-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  height: 500px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+.message-list .user-message,
+.message-list .bot-message {
+  padding: 15px 20px;
+  border-radius: 15px;
+  font-size: 17px;
+  word-wrap: break-word;
+  max-width: 70%;
+}
+
+.message-list .user-message {
+  background-color: #8ddb91;
+  align-self: flex-end;
+}
+
+.message-list .bot-message {
+  background-color: #f1f1f1;
+  align-self: flex-start;
+}
+
+.chat-form {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.message-input {
+  flex-grow: 1;
+  padding: 14px;
+  font-size: 17px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  margin-right: 10px;
+  box-sizing: border-box;
+}
+
+.send-button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 14px 17px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 17px;
+  width: auto;
+  min-width: 100px;
+  box-sizing: border-box;
+  transform: translateY(-5px);
+}
+
+.send-button:hover {
+  background-color: #45a049;
+}
+
+/* Add this to your existing App.css */
+
+/* Clear History Button: Small and aligned to left */
+.clear-button {
+  background-color: #FF6347;
+  color: white;
+  padding: 5px 10px;  /* Smaller size */
+  border-radius: 6px;
   font-size: 14px;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.3s ease;
+  margin-top: 10px;
+  align-self: flex-start;  /* Align to left */
+}
+
+.clear-button:hover {
+  background-color: #e55347;
+}
+
+/* Styling for thumbs-up/thumbs-down buttons */
+.feedback-buttons {
+  display: flex;
+  gap: 15px;
+  margin-top: 5px;
+  justify-content: left;
+}
+
+.feedback-buttons input[type="radio"] {
+  display: none; /* Hide the default radio button */
+}
+
+.feedback-buttons label {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.2s ease; /* Smooth transition */
+}
+
+.feedback-buttons label:before {
+  content: '';
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: #f0f0f0; /* Light gray background */
+  border: none;
+  transition: background-color 0.2s ease; /* Faster transition */
+}
+
+/* Thumbs-up radio button default state */
+.feedback-buttons .thumbs-up-label:before {
+  background-color: #f0f0f0;
+}
+
+/* Thumbs-down radio button default state */
+.feedback-buttons .thumbs-down-label:before {
+  background-color: #f0f0f0;
+}
+
+/* Neutral button default state */
+.feedback-buttons .neutral-label:before {
+  background-color: #f0f0f0;
+}
+
+/* Thumbs-up selected state */
+.feedback-buttons .thumbs-up-label input[type="radio"]:checked + svg:before {
+  background-color: #2f8c27; /* Green color */
+}
+
+/* Thumbs-down selected state */
+.feedback-buttons .thumbs-down-label input[type="radio"]:checked + svg:before {
+  background-color: #e74c3c; /* Red color */
+}
+
+/* Neutral selected state */
+.feedback-buttons .neutral-label input[type="radio"]:checked + svg:before {
+  background-color: #bdc3c7; /* Neutral gray */
+}
+
+/* Icon color when selected */
+.feedback-buttons svg {
+  font-size: 16px;
+  position: absolute;
+  pointer-events: none;
+  transition: color 0.1s ease;
+}
+
+/* Thumbs-up icon color */
+.feedback-buttons .thumbs-up-label input[type="radio"]:checked + svg {
+  color: #2f8c27;
+}
+
+/* Thumbs-down icon color */
+.feedback-buttons .thumbs-down-label input[type="radio"]:checked + svg {
+  color: #e74c3c;
+}
+
+/* Neutral icon color */
+.feedback-buttons .neutral-label input[type="radio"]:checked + svg {
+  color: #2f8c27;
+}
+
+/* Hover effect */
+.feedback-buttons label:hover {
+  transform: scale(1.1); /* Slight zoom effect when hovering */
 }

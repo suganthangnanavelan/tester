@@ -1,17 +1,30 @@
 const express = require('express');
 const router = express.Router();
 const Corpus = require('../models/corpus');
-const { NlpManager } = require('@nlpjs/core');
-let manager;
-async() => {
-  manager = new NlpManager({ languages: ['en'] });
-};
-// CREATE intent
+
+// CREATE a new intent
 router.post('/', async (req, res) => {
   try {
-    const corpus = new Corpus(req.body);
+    const corpus = new Corpus({
+      ...req.body,
+      qValues: new Array(req.body.responses.length).fill(0) // Initialize qValues with zeros
+    });
     await corpus.save();
     res.status(201).send(corpus);
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
+});
+
+// UPDATE an existing intent
+router.put('/:id', async (req, res) => {
+  try {
+    const updatedCorpus = await Corpus.findByIdAndUpdate(req.params.id, {
+      ...req.body,
+      qValues: new Array(req.body.responses.length).fill(0) // Initialize qValues with zeros
+    }, { new: true });
+    if (!updatedCorpus) return res.status(404).send('Intent not found');
+    res.status(200).send(updatedCorpus);
   } catch (error) {
     res.status(400).send(error.message);
   }
@@ -27,17 +40,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-// UPDATE intent by ID
-router.put('/:id', async (req, res) => {
-  try {
-    const updatedCorpus = await Corpus.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!updatedCorpus) return res.status(404).send('Intent not found');
-    res.status(200).send(updatedCorpus);
-  } catch (error) {
-    res.status(400).send(error.message);
-  }
-});
-
 // DELETE intent by ID
 router.delete('/:id', async (req, res) => {
   try {
@@ -47,22 +49,6 @@ router.delete('/:id', async (req, res) => {
   } catch (error) {
     res.status(500).send(error.message);
   }
-});
-
-// TRAIN NLP.js model
-router.get('/train', async (req, res) => {
-  const corpus = await Corpus.find();
-  corpus.forEach(intent => {
-    intent.utterances.forEach(utterance => {
-      manager.addDocument('en', utterance, intent.intent);
-    });
-    intent.responses.forEach(response => {
-      manager.addAnswer('en', intent.intent, response);
-    });
-  });
-  await manager.train();
-  manager.save(); // Save the trained model
-  res.send('NLP model trained successfully');
 });
 
 module.exports = router;
